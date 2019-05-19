@@ -9,11 +9,81 @@ output:
 ## Setting the **Working Directory** and preparing the file.
 
 ###   *Activating the packages you need and changing the format of the date.*
-```{r,cache=TRUE}
+
+```r
 library(lubridate)
+```
+
+```
+## Warning: package 'lubridate' was built under R version 3.5.3
+```
+
+```
+## 
+## Attaching package: 'lubridate'
+```
+
+```
+## The following object is masked from 'package:base':
+## 
+##     date
+```
+
+```r
 library(dplyr)
+```
+
+```
+## Warning: package 'dplyr' was built under R version 3.5.3
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:lubridate':
+## 
+##     intersect, setdiff, union
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 library(ggplot2)
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 3.5.3
+```
+
+```r
 library(gridExtra)
+```
+
+```
+## 
+## Attaching package: 'gridExtra'
+```
+
+```
+## The following object is masked from 'package:dplyr':
+## 
+##     combine
+```
+
+```r
 activity <- read.csv("activity.csv")
 activity$date<-ymd(activity$date)
 ```
@@ -22,7 +92,8 @@ activity$date<-ymd(activity$date)
 ## Getting the Total, Mean and Mediam Nbr of Steps per Day
 
 ###   *Getting the total nbr of steps per day.*
-```{r,cache=TRUE}
+
+```r
 st2 <- data.frame(tapply(activity$steps,activity$date,sum,na.rm=TRUE))
 st2$date <- rownames(st2)
 names(st2)[[1]] <- "Total Steps"
@@ -38,8 +109,11 @@ hist(st2$'Total Steps', main = "Histogram for the Total Nbr of Steps",
      ylab = "Frequency in Days", xlab = "Nbr of Steps", col = col)
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
 ###   *Getting the **mean** and **median** of the **total number of steps taken per day**.*
-```{r,cache=TRUE}
+
+```r
 st3 <- data.frame(round(tapply(activity$steps,activity$date,mean,na.rm=TRUE),2))
 st3$Date <- rownames(st3)
 rownames(st3) <- NULL
@@ -57,7 +131,8 @@ st3 <- st3 %>%
 
 ###   *Removing the NAs and creating a Time Series Plot for the*
 ###   *Average Nbr of Steps per day.*
-```{r,cache=TRUE}
+
+```r
 st4 <- st3
 st4$Date <- as.Date(st4$Date, format = "%Y-%m-%d")
 st4 <- st4[complete.cases(st4[ , 2:3]),]
@@ -69,9 +144,12 @@ ggplot(st4,aes(x = st4$Date, y = st4$MeanSteps)) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
 # Step 3
 ## The maximum mean nbr of steps per interval per day
-```{r,cache=TRUE}
+
+```r
 st5 <- aggregate(data = activity, steps~interval, FUN = "mean")
 st5_1 <- aggregate(data = activity, steps~interval, FUN = "median")
 ggplot(st5,aes(x = st5$interval, y = st5$steps)) + 
@@ -79,6 +157,11 @@ ggplot(st5,aes(x = st5$interval, y = st5$steps)) +
   ylab("Steps") + xlab("5 min Interval") + 
   ggtitle("Average Steps per Interval per Day") + 
   theme(plot.title = element_text(hjust = 0.5))
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
+```r
 Max_st5 <- st5[which.max(st5$steps),1]
 ```
 
@@ -86,13 +169,15 @@ Max_st5 <- st5[which.max(st5$steps),1]
 ## Imputation of the missing values to the masterfile
 
 ###   *Count of all missing values for the whole dataset and per columns.*
-```{r,cache=TRUE}
+
+```r
 TotMissVal <- sum(is.na(activity))
 ColMissVal <- colSums(is.na(activity))
 ```
 
 ###   *Imputing the mean steps per interval to the corresponding missing values.*
-```{r,cache=TRUE}
+
+```r
 for(i in 1:nrow(activity))
 {
   if(is.na(activity$steps[i])){
@@ -102,7 +187,8 @@ for(i in 1:nrow(activity))
 
 ###   *Getting the total steps per day and creating a histogram for*
 ###   *the new imputed master file.*
-```{r,cache=TRUE}
+
+```r
 imp_act <- data.frame(tapply(activity$steps,activity$date,sum,na.rm=TRUE))
 imp_act$date <- rownames(imp_act)
 names(imp_act)[[1]] <- "TotSteps"
@@ -118,8 +204,11 @@ hist(imp_act$TotSteps, main = "Histogram for the Total Nbr of Steps",
      ylab = "Frequency in Days", xlab = "Nbr of Steps", col = col)
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+
 ###   *Getting the mean and median of the total steps.*
-```{r,cache=TRUE}
+
+```r
 imp_act$MeanSteps <- tapply(activity$steps,activity$date,mean,na.rm=TRUE)
 imp_act$MedSteps <- tapply(activity$steps,activity$date,median,na.rm=TRUE)
 imp_act <- imp_act[,c(2,1,3,4)]
@@ -127,14 +216,16 @@ imp_act <- imp_act[,c(2,1,3,4)]
 
 # Step 5
 ## Creating an indicator for weekday and weekend
-```{r,cache=TRUE}
+
+```r
 activity$DateInd <- ifelse(wday(activity$date) == 1 | wday(activity$date) == 7,0,1)
 ```
 
 ## Creating a plot for average steps per weekend and per weekdays
 
 ###   *Getting the average steps per weekday.*
-```{r,cache=TRUE}
+
+```r
 activityWE <- activity[activity$DateInd == 0,]
 activityWE <- aggregate(data = activityWE, steps~interval, FUN = "mean")
 activityWD <- activity[activity$DateInd == 1,]
@@ -143,7 +234,8 @@ activityWD <- aggregate(data = activityWD, steps~interval, FUN = "mean")
 
 ###   *Creating the Time Series Plot for total steps per interval*
 ###   *per Weekend and per Weekday.*
-```{r,cache=TRUE}
+
+```r
 actWEPlot <- ggplot(activityWE,aes(y = activityWE$steps, x = activityWE$interval)) + 
   geom_line(stat = "identity") + ylab("Average Steps") + 
   xlab("5 Minute Interval for Weekends") + 
@@ -157,4 +249,6 @@ actWDPlot <- ggplot(activityWD,aes(y = activityWD$steps, x = activityWD$interval
   theme(plot.title = element_text(hjust = 0.5))
 grid.arrange(actWEPlot, actWDPlot, nrow = 2)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
